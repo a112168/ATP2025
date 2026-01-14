@@ -163,9 +163,9 @@ def procuraMedico(medicos, especialidade_doente):
     
     return resultado
 
-# --- LÓGICA DE NEGÓCIO ---
 
-def atribuir_pulseira(idade):
+
+def atribuir_pulseira(idade): #probabilidades de cada cor
     cores = [VERDE, AMARELA, VERMELHA]
     pesos = [0.3, 0.5, 0.2] if idade >= 70 else [0.7, 0.2, 0.1]
     resultado = random.choices(cores, weights=pesos, k=1)[0]
@@ -218,7 +218,7 @@ def simular_atendimento(config, db_pessoas=None):
     queueEventos = [] 
     queue = [] 
 
-    t = 0.0
+    t = 0.0 #momentos em q os doentes chegam
     while t < TEMPO_SIMULACAO:
         t += gera_intervalo_tempo_chegada(TAXA_CHEGADA)
         
@@ -312,7 +312,7 @@ def simular_atendimento(config, db_pessoas=None):
                     tempos_consulta.append(duracao_real)
                     medico_libertado = m
             
-        # Atualizar contagem por especialidade
+        # Atualizar contagem por especialidade - quantos pacientes foram atendidos por especialidade
             esp = doente_atual['esp']
             contagem_especialidade[esp] += 1
 
@@ -361,7 +361,7 @@ def simular_atendimento(config, db_pessoas=None):
 
     ocupacao_media = (total_trabalho / (NUM_MEDICOS * TEMPO_SIMULACAO)) * 100
 
-    # Gravar Log
+    # Gravar Log!!!
     try:
         with open("relatorio_final.txt", "w", encoding="utf-8") as f:
             f.write("LOG FINAL\n=========\n")
@@ -377,8 +377,8 @@ def simular_atendimento(config, db_pessoas=None):
         'ocupacao_media': ocupacao_media,
         'max_fila': max_fila,
         'stats_equipa': stats,
-        'plot_fila': list(zip(*dados_fila)),
-        'plot_ocup': list(zip(*dados_ocupacao)),
+        'plot_fila': list(zip(*dados_fila)), #histórico da fila de espera
+        'plot_ocup': list(zip(*dados_ocupacao)), #histórico da ocupação dos médicos ao longo do tempo
         'contagem_especialidade': contagem_especialidade
     }
     return resultado
