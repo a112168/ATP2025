@@ -71,9 +71,10 @@ def mostrar_grafico_pizza(res):
 def main():
     layout_params = [
         [sg.Text("CONFIGURAÇÃO", font=("Arial", 10, "bold"), text_color="#54a0ff")],
-        [sg.Text("Pacientes/Hora:", size=(15,1)), sg.Slider((5, 50), 15, orientation='h', size=(25, 15), key='-TAXA-')],
-        [sg.Text("Nº Médicos:", size=(15,1)), sg.Spin(list(range(1, 15)), 4, size=(5,1), key='-MEDICOS-')],
+        [sg.Text("Pacientes/Hora:", size=(15,1)), sg.Slider((1, 150), 15, orientation='h', size=(25, 15), key='-TAXA-')],
+        [sg.Text("Nº Médicos:", size=(15,1)), sg.Spin(list(range(1, 101)), 4, size=(5,1), key='-MEDICOS-')],
         [sg.Text("T. Base (min):", size=(15,1)), sg.Input("15", size=(6,1), key='-TEMPO-')],
+        [sg.Text("Horas Clínica:", size=(15,1)), sg.Slider((0.1667, 24), 8, 0.25, orientation='h', size=(25,15), key='-HORAS-')],
         [sg.Text("Distribuição:", size=(15,1)), sg.Combo(["Exponencial", "Normal", "Uniforme"], "Exponencial", key='-DIST-')],
         [sg.HSeparator(pad=(0, 20))],
         [sg.Button("SIMULAR ▶", size=(30, 2), button_color=("white", "#10ac84"), font=("Arial", 10, "bold"))]
@@ -141,6 +142,19 @@ def main():
                 window['-STATUS-'].update("A simular...")
                 window.refresh()
                 
+                # --- LEITURA DE VALORES ---
+                taxa_chegada = float(values['-TAXA-'])
+                num_medicos = int(values['-MEDICOS-'])
+                tempo_base = float(values['-TEMPO-'])
+                horas_clinica = float(values['-HORAS-'])
+                distribuicao = values['-DIST-']
+
+                # --- VALIDAÇÃO ---
+                if taxa_chegada <= 0 or num_medicos <= 0 or tempo_base <= 0 or horas_clinica <= 0:
+                    sg.popup_error("Todos os valores devem ser positivos e diferentes de zero!")
+                    continue  # Não prossegue para simulação
+
+
                 
             # --- CARREGAR JSON DE FORMA SEGURA (CAMINHO ABSOLUTO) ---
                 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -163,8 +177,9 @@ def main():
                     'num_medicos': int(values['-MEDICOS-']),
                     'tempo_medio': float(values['-TEMPO-']),
                     'distribuicao': values['-DIST-'],
-                    'tempo_max': 480
+                    'tempo_max': int(values['-HORAS-'] * 60)  # Converte horas para minutos
                 }
+
                 
                 res = simulacao.simular_atendimento(cfg, db)
                 ultimo_resultado = res
